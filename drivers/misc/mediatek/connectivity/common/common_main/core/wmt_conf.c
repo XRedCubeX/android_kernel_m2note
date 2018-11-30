@@ -432,34 +432,34 @@ INT32 wmt_conf_set_cfg_file(const PINT8 name)
 INT32 wmt_conf_read_file(VOID)
 {
 	INT32 ret = -1;
+	ENUM_WMT_CHIP_TYPE chip_type;
 
 	osal_memset(&gDevWmt.rWmtGenConf, 0, osal_sizeof(gDevWmt.rWmtGenConf));
 	osal_memset(&gDevWmt.pWmtCfg, 0, osal_sizeof(gDevWmt.pWmtCfg));
-
-	osal_memset(&gDevWmt.cWmtcfgName[0], 0, osal_sizeof(gDevWmt.cWmtcfgName));
-
-	osal_strncpy(&(gDevWmt.cWmtcfgName[0]), CUST_CFG_WMT, osal_sizeof(CUST_CFG_WMT));
+	chip_type = wmt_detect_get_chip_type();
+	if (chip_type == WMT_CHIP_TYPE_SOC) {
+		osal_memset(&gDevWmt.cWmtcfgName[0], 0, osal_sizeof(gDevWmt.cWmtcfgName));
+		osal_strncat(&(gDevWmt.cWmtcfgName[0]), CUST_CFG_WMT_SOC, osal_sizeof(CUST_CFG_WMT_SOC));
+	}
 
 	if (!osal_strlen(&(gDevWmt.cWmtcfgName[0]))) {
 		WMT_ERR_FUNC("empty Wmtcfg name\n");
 		osal_assert(0);
 		return ret;
 	}
-	WMT_INFO_FUNC("WMT config file:%s\n", &(gDevWmt.cWmtcfgName[0]));
+	WMT_DBG_FUNC("WMT config file:%s\n", &(gDevWmt.cWmtcfgName[0]));
 	if (0 ==
-	    wmt_dev_patch_get(&gDevWmt.cWmtcfgName[0], (osal_firmware **) &gDevWmt.pWmtCfg, 0)) {
+	    wmt_dev_patch_get(&gDevWmt.cWmtcfgName[0], (osal_firmware **) &gDevWmt.pWmtCfg)) {
 		/*get full name patch success */
 		WMT_INFO_FUNC("get full file name(%s) buf(0x%p) size(%zu)\n",
 			      &gDevWmt.cWmtcfgName[0], gDevWmt.pWmtCfg->data,
 			      gDevWmt.pWmtCfg->size);
-
 		if (0 ==
 		    wmt_conf_parse(&gDevWmt, (const PINT8)gDevWmt.pWmtCfg->data,
 				   gDevWmt.pWmtCfg->size)) {
 			/*config file exists */
 			gDevWmt.rWmtGenConf.cfgExist = 1;
-
-			WMT_INFO_FUNC("&gDevWmt.rWmtGenConf=%p\n", &gDevWmt.rWmtGenConf);
+			WMT_DBG_FUNC("&gDevWmt.rWmtGenConf=%p\n", &gDevWmt.rWmtGenConf);
 			ret = 0;
 		} else {
 			WMT_ERR_FUNC("wmt conf parsing fail\n");
