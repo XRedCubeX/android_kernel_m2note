@@ -1990,6 +1990,7 @@ static INT_32 wlanProbe(PVOID pvData)
 		{
 			PUINT_8 pucConfigBuf;
 			UINT_32 u4ConfigReadLen;
+
 			pucConfigBuf = (PUINT_8) kalMemAlloc(WLAN_CFG_FILE_BUF_SIZE, VIR_MEM_TYPE);
 			u4ConfigReadLen = 0;
 			if (pucConfigBuf) {

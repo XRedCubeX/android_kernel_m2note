@@ -15,7 +15,6 @@ endif
 	obj-y += common_drv_init.o
 	obj-y += bluetooth_drv_init.o
 	obj-y += gps_drv_init.o
-	obj-y += fm_drv_init.o
 	obj-y += wlan_drv_init.o
 	obj-($(CONFIG_MTK_COMBO_ANT)) += ant_drv_init.o
 
