@@ -1309,7 +1309,6 @@ struct ieee80211_channel *kalP2pFuncGetChannelEntry(IN P_GL_P2P_INFO_T prP2pInfo
 				u4TblSize = bands[IEEE80211_BAND_2GHZ]->n_channels;
 			}
 			break;
-#ifndef CONFIG_MTK_COMBO_DISABLE_5G_FOR_P2P
 		case BAND_5G:
 			if (bands[IEEE80211_BAND_5GHZ] == NULL)
 				DBGLOG(P2P, ERROR, "kalP2pFuncGetChannelEntry 5G NULL Bands!!\n");
@@ -1318,7 +1317,6 @@ struct ieee80211_channel *kalP2pFuncGetChannelEntry(IN P_GL_P2P_INFO_T prP2pInfo
 				u4TblSize = bands[IEEE80211_BAND_5GHZ]->n_channels;
 			}
 			break;
-#endif
 		default:
 			break;
 		}
