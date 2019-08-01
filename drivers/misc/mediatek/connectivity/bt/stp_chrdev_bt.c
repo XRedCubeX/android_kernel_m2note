@@ -211,10 +211,10 @@ unsigned int BT_poll(struct file *filp, poll_table *wait)
 	return mask;
 }
 
-ssize_t BT_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ssize_t BT_write_iter(struct kiocb *iocb, const struct iovec *iov, unsigned long nr_segs, loff_t f_pos)
 {
 	INT32 retval = 0;
-	size_t count = iov_iter_count(from);
+	size_t count = iov_length(iov, nr_segs);
 
 	down(&wr_mtx);
 
@@ -227,14 +227,21 @@ ssize_t BT_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	}
 
 	if (count > 0) {
+		unsigned long seg = nr_segs;
+		size_t ofs = 0;
 		if (count > BT_BUFFER_SIZE) {
 			count = BT_BUFFER_SIZE;
 			BT_WARN_FUNC("Shorten write count from %zd to %d\n", count, BT_BUFFER_SIZE);
 		}
 
-		if (copy_from_iter(o_buf, count, from) != count) {
-			retval = -EFAULT;
-			goto OUT;
+		while (seg > 0) {
+			if (copy_from_user(&o_buf[ofs], iov->iov_base, iov->iov_len)) {
+				retval = -EFAULT;
+				goto OUT;
+			}
+			ofs += iov->iov_len;
+			iov++;
+			seg--;
 		}
 
 		retval = mtk_wcn_stp_send_data(o_buf, count, BT_TASK_INDX);
@@ -523,7 +530,7 @@ const struct file_operations BT_fops = {
 	.release = BT_close,
 	.read = BT_read,
 	.write = BT_write,
-	.write_iter = BT_write_iter,
+	.aio_write = BT_write_iter,
 	/* .ioctl = BT_ioctl, */
 	.unlocked_ioctl = BT_unlocked_ioctl,
 	.compat_ioctl = BT_compat_ioctl,
